@@ -23,15 +23,15 @@ import reconciletags
 _REGISTRY = 'gcr.io'
 _REPO = 'foobar/baz'
 _FULL_REPO = _REGISTRY + '/' + _REPO
-_DIGEST1 = 'digest1'
-_DIGEST2 = 'digest2'
+_DIGEST1 = '0000000000000000000000000000000000000000000000000000000000000000'
+_DIGEST2 = '0000000000000000000000000000000000000000000000000000000000000001'
 _TAG1 = 'tag1'
 _TAG2 = 'tag2'
 
 _LIST_RESP = """
 [
   {
-    "digest": "sha256:digest1",
+    "digest": "0000000000000000000000000000000000000000000000000000000000000000",
     "tags": [
       "tag1"
     ],
@@ -41,10 +41,7 @@ _LIST_RESP = """
 ]
 """
 
-_GCLOUD_CONFIG = 'gcloud config list --format=json'
-_GCLOUD_LIST = ('gcloud container images list-tags '
-                '--no-show-occurrences {0} --format=json'.format(_FULL_REPO))
-
+_EXISTING_TAGS = "Existing Tags: {0}".format([_TAG1])
 
 class ReconcileTagsTest(unittest.TestCase):
 
@@ -61,28 +58,24 @@ class ReconcileTagsTest(unittest.TestCase):
                        'images': [{'digest': _DIGEST1, 'tag': _TAG1}]}]}
 
     def test_reconcile_tags(self):
-        with mock.patch('subprocess.check_output',
+        with mock.patch('reconciletags.logging.debug',
                         return_value=_LIST_RESP) as mock_output:
             self.r.reconcile_tags(self.data, False)
-            mock_output.assert_any_call([_GCLOUD_CONFIG], shell=True)
-            mock_output.assert_any_call([_GCLOUD_LIST], shell=True)
-            mock_output.assert_any_call([self._gcloudAdd(_DIGEST1, _TAG1)],
-                                        shell=True)
+
+            self.assertIn(((["Tagging {0} with {1}".format(
+                _FULL_REPO+'@sha256:'+_DIGEST1, _FULL_REPO+":"+_TAG1)],),
+                              {'shell': True}), mock_output.mock_calls)
 
     def test_dry_run(self):
-        with mock.patch('subprocess.check_output',
+        with mock.patch('reconciletags.logging.debug', 
                         return_value=_LIST_RESP) as mock_output:
+
             self.r.reconcile_tags(self.data, True)
-            mock_output.assert_any_call([_GCLOUD_CONFIG], shell=True)
+            mock_output.assert_any_call("Would have tagged {0} with {1}".format(
+                _FULL_REPO+'@sha256:'+_DIGEST1, _FULL_REPO+":"+_TAG1))
 
-            # These next two lines test identical things, I added the "manual"
-            # check to ensure that my assertNotIn check would theoretically
-            # be looking for the correct thing.
-            mock_output.assert_any_call([_GCLOUD_LIST], shell=True)
-            self.assertIn((([_GCLOUD_LIST],), {'shell': True}),
-                          mock_output.mock_calls)
-
-            self.assertNotIn((([self._gcloudAdd(_DIGEST1, _TAG1)],),
+            self.assertNotIn(((["Tagging {0} with {1}".format(
+                _FULL_REPO+'@sha256:'+_DIGEST1, _FULL_REPO+":"+_TAG1)],),
                               {'shell': True}), mock_output.mock_calls)
 
     def test_get_existing_tags(self):
