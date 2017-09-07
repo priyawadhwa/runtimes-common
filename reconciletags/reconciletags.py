@@ -98,7 +98,7 @@ class TagReconciler:
                     with docker_image.FromRegistry(name, creds,
                                                    transport) as img:
                             if not img.exists():
-                                logging.debut('Could not retrieve  ' +
+                                logging.debug('Could not retrieve  ' +
                                               '{0}'.format(full_digest))
                                 return
 
