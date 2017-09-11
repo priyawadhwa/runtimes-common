@@ -83,10 +83,18 @@ py_test(
     ],
 )
 
+docker_build(
+    name = "docker_gcr_image",
+    tars = ["@docker_credential_gcr//file"],
+    base = "@python_base//image",
+    cmd = ["//docker-credential-gcr configure-docker"],
+    env = {"PATH":"$PATH:/"},
+)
+
 py_image(
     name = "reconciletags_image",
     srcs = ["reconciletags.py"],
-    base = "@python_base//image",
+    base = ":docker_gcr_image",
     main = "reconciletags.py",
     deps = [
         "@containerregistry",
