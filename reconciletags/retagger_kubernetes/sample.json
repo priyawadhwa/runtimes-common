@@ -1,0 +1,16 @@
+{
+    "projects":[
+      {
+          "base_registry": "gcr.io",
+          "additional_registries": ["us.gcr.io", "eu.gcr.io", "asia.gcr.io"],
+          "repository": "sinuous-analog-177620/hello-app",
+          "images": [
+                  {
+                          "digest": "a1f95dbe8bd42cd66edd6dfb96656c17e75d523ab71bbe398cc57e1c310788f3",
+                          "tag": "v10"
+                  }
+          ]
+                  }
+           ]
+   }
+   
