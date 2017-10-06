@@ -50,6 +50,7 @@ py_test(
     srcs = ["reconciletags_test.py"],
     deps = [
         "@containerregistry",
+        "@containerregistry_test",
         "@httplib2//:httplib2",
         "@mock",
     ],

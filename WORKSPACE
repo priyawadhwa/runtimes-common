@@ -28,6 +28,11 @@ git_repository(
     remote = "https://github.com/google/containerregistry",
 )
 
+local_repository(
+    name = "containerregistry_test",
+    path = "/Users/priyawadhwa/containerregistry-testing"
+)
+
 load(
     "@io_bazel_rules_docker//docker:docker.bzl",
     "docker_repositories",
