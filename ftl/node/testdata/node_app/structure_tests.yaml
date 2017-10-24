@@ -1,0 +1,12 @@
+schemaVersion: '2.0.0'
+fileExistenceTests:
+- name: 'hello'
+  path: '/app/hello.txt'
+  shouldExist: true
+- name: 'express'
+  path: '/app/node_modules/express'
+  shouldExist: true
+- name: 'package'
+  path: '/app/node_modules/package'
+  shouldExist: false
+

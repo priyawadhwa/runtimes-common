@@ -20,7 +20,12 @@ par_binary(
     deps = [
         "@containerregistry",
         "@httplib2//:httplib2",
+        
     ],
+    data = [
+        ":config_integrity.par",
+        ":data_integrity.par"
+    ]
 )
 
 par_binary(

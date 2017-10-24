@@ -1,0 +1,12 @@
+steps:
+#Build node ftl image with bazel
+  - name:  'gcr.io/cloud-builders/bazel'
+    args: ['build', 'ftl:node_builder_image.tar']
+  - name:  'gcr.io/cloud-builders/docker'
+    args: ['load', '--input', 'bazel-bin/ftl/node_builder_image.tar']
+# 1. Test packages are installed correctly
+  # Build node image
+  - name:  'bazel/ftl:node_builder_image'
+    args: ['--base', 'gcr.io/google-appengine/nodejs:latest',
+           '--name', 'gcr.io/ftl-node-test/node-test-local:latest',
+           '--directory', 'ftl/node/testdata/node_app/']

@@ -1,0 +1,15 @@
+{
+        "projects":[
+          {
+            "base_registry": "gcr.io",
+            "additional_registries": [],
+            "repository": "reconciler-example/reconciler-example",
+            "images": [
+              {
+                      "digest": "eb7d5e4b850d",
+                      "tag": "testing"
+              }
+            ]
+          }
+        ]
+      }

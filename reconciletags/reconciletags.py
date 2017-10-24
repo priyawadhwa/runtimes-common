@@ -23,6 +23,10 @@ import argparse
 import json
 import logging
 import os
+import shutil
+import subprocess
+import glob
+import unittest
 from containerregistry.client import docker_creds
 from containerregistry.client import docker_name
 from containerregistry.client.v2_2 import docker_image
@@ -158,15 +162,59 @@ class TagReconciler:
                 logging.debug(self.get_existing_tags(default_repo, digest))
 
 
+def create_temp_dir(files):
+    config_dir = "../config/"
+    os.mkdir(config_dir)
+    tag_dir = config_dir + "tag"
+    os.mkdir(tag_dir)
+
+    for file in files:
+        if os.path.isfile(file):
+            shutil.copy(file, tag_dir)
+        else:
+            raise AssertionError("{0} is not a valid file".format(file))
+
+def delete_temp_dir():
+    config_dir = "../config/"
+    shutil.rmtree(config_dir)
+
+def run_config_integrity_test(files):
+    create_temp_dir(files)
+    if os.path.isfile('config_integrity.par'):
+        print('exists')
+    subprocess.check_call(['reconciletags/config_integrity.par'])
+
+def run_data_integrity_test(files):
+    create_temp_dir(files)
+    subprocess.check_call(['reconciletags/data_integrity.par'])
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dry-run', dest='dry_run',
+                        help='Runs tests to make sure input files are valid, and runs a dry run of the reconciler',
                         action='store_true', default=False)
     parser.add_argument('files',
                         help='The files to run the reconciler on',
                         nargs='+')
+    parser.add_argument('--data-integrity', dest='data_integrity',
+                        help='Runs a test to make sure the data in the input files is the same as in prod',
+                        action='store_true', default=False)
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG)
+
+    if args.data_integrity:
+        try:
+            run_data_integrity_test(args.files)
+        finally:
+            delete_temp_dir() 
+        return
+
+    if args.dry_run:
+        try:
+            run_config_integrity_test(args.files)
+        finally:
+            delete_temp_dir() 
+
     r = TagReconciler()
     for f in args.files:
         logging.debug('---Processing {0}---'.format(f))
