@@ -34,7 +34,7 @@ from containerregistry.client.v2_2 import docker_session
 from containerregistry.transport import transport_pool
 from containerregistry.tools import patched
 import httplib2
-
+from reconciletags import config_integrity_test
 
 class TagReconciler:
 
@@ -180,13 +180,13 @@ def delete_temp_dir():
 
 def run_config_integrity_test(files):
     create_temp_dir(files)
-    if os.path.isfile('config_integrity.par'):
-        print('exists')
-    subprocess.check_call(['reconciletags/config_integrity.par'])
+    suite = unittest.TestLoader().loadTestsFromTestCase(config_integrity_test.ReconcilePresubmitTest)
+    unittest.TextTestRunner().run(suite)
 
 def run_data_integrity_test(files):
     create_temp_dir(files)
-    subprocess.check_call(['reconciletags/data_integrity.par'])
+    suite = unittest.TestLoader().loadTestsFromTestCase(data_integrity_test.DataIntegrityTest)
+    unittest.TextTestRunner().run(suite)
 
 def main():
     parser = argparse.ArgumentParser()
